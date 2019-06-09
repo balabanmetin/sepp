@@ -56,6 +56,7 @@ main_config_path = os.path.join(root_p, "main.config")
 def set_main_config_path(filename):
     global main_config_path
     main_config_path = filename
+    _LOG.debug("Config path is at %s" %main_config_path)
 
 
 def _read_config_file(filename, opts, expand=None):
@@ -120,6 +121,11 @@ def set_cpu(cpus):
     scheduler.default_cpus = c
     return c
 
+
+def set_placer(placer):
+    if placer not in ["pplacer", "apples"]:
+        raise ValueError("Placement tool not recognized: %s" %placer)
+    return placer
 
 def set_checkpoint(checkpoint):
     import sepp.checkpointing
@@ -264,6 +270,16 @@ def _init_parser():
         default="dna",
         help=("Molecule type of sequences. Can be amino, dna, or rna "
               "[default: %(default)s]"))
+
+    toolGroup = _parser.add_argument_group(
+        "Tool options".upper(), "These options control the internal tools that SEPP uses")
+    _parser.groups['toolGroup'] = toolGroup
+    toolGroup.add_argument(
+        "-pl", "--placer", type=set_placer,
+        dest="placer", metavar="PLACER",
+        default="pplacer",
+        help=("Use the placer tool given as input "
+              "[default: pplacer]"))
 
     otherGroup = _parser.add_argument_group(
         "Other options".upper(), "These options control how SEPP is run")

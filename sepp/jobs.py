@@ -485,11 +485,16 @@ class HMMSearchJob(ExternalSeppJob):
                     # group(2).strip()))
         return results
 
+def Placer():
+    if sepp.config.options().placer == "pplacer":
+        return PplacerJob()
+    elif sepp.config.options().placer == "apples":
+        return ApplesJob()
+    else:
+        raise ValueError("Placer %s not defined" %(sepp.config.options().placer))
 
-class PplacerJob(ExternalSeppJob):
+class PlacerJob(ExternalSeppJob):
     def __init__(self, **kwargs):
-        self.job_type = 'pplacer'
-        # pdb.set_trace()
         ExternalSeppJob.__init__(self, self.job_type, **kwargs)
         '''The following is just a string indicating the type of input provided
         to pplacer job. Different setup methods can setup this job with
@@ -546,20 +551,9 @@ class PplacerJob(ExternalSeppJob):
         self._kwargs = kwargs
         self.setup_setting = "File:TrInEx"
 
+    @abstractmethod
     def get_invocation(self):
-        invoc = [self.path,
-                 "--out-dir", os.path.dirname(self.out_file)]
-        if "user_options" in self._kwargs:
-            invoc.extend(self._kwargs["user_options"].split())
-
-        if self.setup_setting == "File:TrInEx":
-            invoc.extend(["-j", "1",
-                          "-r", self.backbone_alignment_file,
-                          "-s", self.info_file,
-                          "-t", self.tree_file,
-                          "--groups", "10",
-                          self.extended_alignment_file])
-        return invoc
+        pass
 
     def characterize_input(self):
         if self.setup_setting == "File:TrInEx":
@@ -585,6 +579,47 @@ class PplacerJob(ExternalSeppJob):
         assert os.path.exists(self.out_file)
         assert os.stat(self.out_file)[stat.ST_SIZE] != 0
         return self.out_file
+
+class PplacerJob(PlacerJob):
+    def __init__(self, **kwargs):
+        self.job_type = 'pplacer'
+        PlacerJob.__init__(self)
+
+    def get_invocation(self):
+        invoc = [self.path,
+                 "--out-dir", os.path.dirname(self.out_file)]
+        if "user_options" in self._kwargs:
+            invoc.extend(self._kwargs["user_options"].split())
+
+        if self.setup_setting == "File:TrInEx":
+            invoc.extend(["-j", "1",
+                          "-r", self.backbone_alignment_file,
+                          "-s", self.info_file,
+                          "-t", self.tree_file,
+                          "--groups", "10",
+                          self.extended_alignment_file])
+        return invoc
+
+
+class ApplesJob(PlacerJob):
+    def __init__(self, **kwargs):
+        self.job_type = 'apples'
+        PlacerJob.__init__(self)
+        import apples
+
+    def get_invocation(self):
+        invoc = [self.path,
+                 "-o", self.out_file]
+        if "user_options" in self._kwargs:
+            invoc.extend(self._kwargs["user_options"].split())
+
+        if self.setup_setting == "File:TrInEx":
+            invoc.extend(["-T", "1",
+                          "-s", self.backbone_alignment_file,
+                          "-t", self.tree_file,
+                          "-x", self.extended_alignment_file])
+        return invoc
+
 
 
 class MergeJsonJob(ExternalSeppJob):

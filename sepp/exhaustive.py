@@ -10,8 +10,8 @@ from sepp.alignment import MutableAlignment, ExtendedAlignment,\
     hamming_distance
 from sepp.problem import SeppProblem
 from dendropy.datamodel.treemodel import Tree
-from sepp.jobs import HMMBuildJob, HMMSearchJob, HMMAlignJob, PplacerJob,\
-    MergeJsonJob
+from sepp.jobs import HMMBuildJob, HMMSearchJob, HMMAlignJob, \
+    MergeJsonJob, Placer, PlacerJob
 from sepp.scheduler import JobPool, Join
 from sepp import get_logger
 from sepp.math_utils import lcm
@@ -202,7 +202,7 @@ class JoinAlignJobs(Join):
                 fullExtendedAlignment.get_fragments_readonly_alignment()
             baseAlignment = fullExtendedAlignment.get_base_readonly_alignment()
             pj = pp.jobs[get_placement_job_name(i)]
-            assert isinstance(pj, PplacerJob)
+            assert isinstance(pj, PlacerJob)
             if (queryExtendedAlignment.is_empty()):
                 pj.fake_run = True
 
@@ -284,6 +284,7 @@ class ExhaustiveAlgorithm(AbstractAlgorithm):
         mergeinput.append("")
         mergeinput.append("")
         meregeinputstring = "\n".join(mergeinput)
+        _LOG.debug(mergeinput)
         mergeJsonJob = MergeJsonJob()
         mergeJsonJob.setup(meregeinputstring,
                            self.get_output_filename("placement.json"))
@@ -428,7 +429,7 @@ class ExhaustiveAlgorithm(AbstractAlgorithm):
         for placement_problem in self.root_problem.get_children():
             ''' Create placer jobs'''
             for i in range(0, self.root_problem.fragment_chunks):
-                pj = PplacerJob()
+                pj = Placer()
                 pj.partial_setup_for_subproblem(
                     placement_problem, self.options.info_file, i)
                 placement_problem.add_job(get_placement_job_name(i), pj)

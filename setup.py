@@ -220,9 +220,9 @@ setup(name="sepp",
 
       license="General Public License (GPL)",
       install_requires=["dendropy >= 4.0.0"],
-      provides=["sepp"],
+      provides=["sepp","apples"],
       scripts=["run_sepp.py", 'run_tipp.py', 'run_upp.py', 'run_abundance.py',
-               "split_sequences.py", "run_tipp_tool.py"],
+               "split_sequences.py", "run_tipp_tool.py", "run_apples.py"],
       cmdclass={"config": ConfigSepp, "tipp": ConfigTIPP, "upp": ConfigUPP},
       data_files=[('', ['home.path'])],
 

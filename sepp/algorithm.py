@@ -209,6 +209,8 @@ class AbstractAlgorithm(object):
             raise Exception(("The max diameter option can be used only with "
                              "the midpoint or the centroid decomposition "
                              "specified using -S"))
+        if options.placer == "apples":
+            options.placement_size = total
         if (options.alignment_size is None):
             if options.placement_size is None:
                 options.alignment_size = int(total*.10)
