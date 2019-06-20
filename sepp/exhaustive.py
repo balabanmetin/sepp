@@ -266,29 +266,49 @@ class ExhaustiveAlgorithm(AbstractAlgorithm):
                     extended_alignment, convert_to_string=True)
         self.results = fullExtendedAlignment
 
-        mergeinput = []
-        '''Append main tree to merge input'''
-        mergeinput.append(
-            "%s;" % (self.root_problem.subtree.compose_newick(labels=True)))
-        for pp in self.root_problem.get_children():
-            assert isinstance(pp, SeppProblem)
-            for i in range(0, self.root_problem.fragment_chunks):
-                if (pp.get_job_result_by_name(
-                        get_placement_job_name(i)) is None):
-                    continue
-                '''Append subset trees and json locations to merge input'''
-                mergeinput.append(
-                    "%s;\n%s" % (
-                        pp.subtree.compose_newick(labels=True),
-                        pp.get_job_result_by_name(get_placement_job_name(i))))
-        mergeinput.append("")
-        mergeinput.append("")
-        meregeinputstring = "\n".join(mergeinput)
-        _LOG.debug(mergeinput)
-        mergeJsonJob = MergeJsonJob()
-        mergeJsonJob.setup(meregeinputstring,
-                           self.get_output_filename("placement.json"))
-        mergeJsonJob.run()
+        # IF only one placement subset, no need to go to java
+        if len(self.root_problem.get_children()) == 1:
+            import json
+            mergeinput = []
+            for pp in self.root_problem.get_children():
+                assert isinstance(pp, SeppProblem)
+                for i in range(0, self.root_problem.fragment_chunks):
+                    if (pp.get_job_result_by_name(
+                            get_placement_job_name(i)) is None):
+                        continue
+                    '''Append subset trees and json locations to merge input'''
+                    with open(pp.get_job_result_by_name(get_placement_job_name(i))) as f:
+                        mergeinput.append(json.load(f))
+                _LOG.info("There are %d fragment chunks on a single placement subset" %len(mergeinput))
+            result = mergeinput[0]
+            for i in range(1, len(mergeinput)):
+                result["placements"] = result["placements"] + mergeinput[i]["placements"]
+            with open(self.get_output_filename("placement.json"),'w') as f:
+                json.dump(result,f, sort_keys=True, indent=4)
+        else:
+            mergeinput = []
+            '''Append main tree to merge input'''
+            mergeinput.append(
+                "%s;" % (self.root_problem.subtree.compose_newick(labels=True)))
+            for pp in self.root_problem.get_children():
+                assert isinstance(pp, SeppProblem)
+                for i in range(0, self.root_problem.fragment_chunks):
+                    if (pp.get_job_result_by_name(
+                            get_placement_job_name(i)) is None):
+                        continue
+                    '''Append subset trees and json locations to merge input'''
+                    mergeinput.append(
+                        "%s;\n%s" % (
+                            pp.subtree.compose_newick(labels=True),
+                            pp.get_job_result_by_name(get_placement_job_name(i))))
+            mergeinput.append("")
+            mergeinput.append("")
+            meregeinputstring = "\n".join(mergeinput)
+            _LOG.debug(mergeinput)
+            mergeJsonJob = MergeJsonJob()
+            mergeJsonJob.setup(meregeinputstring,
+                               self.get_output_filename("placement.json"))
+            mergeJsonJob.run()
 
     def output_results(self):
         ''' Merged json file is already saved in merge_results function and
