@@ -1,0 +1,3 @@
+[submodule "apples"]
+	path = apples
+	url = https://github.com/balabanmetin/apples.git

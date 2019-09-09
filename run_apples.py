@@ -1,1 +1,1 @@
-/Users/metin/PycharmProjects/apples_swift/run_apples.py
+apples/run_apples.py
