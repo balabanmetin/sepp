@@ -1,4 +1,10 @@
 ------------------------------------
+Running With APPLES instructions
+------------------------------------
+
+Please use option `-pl apples` to use APPLES for placement and  `-pl pplacer` for PPLACER.
+
+------------------------------------
 Summary
 ------------------------------------
 
