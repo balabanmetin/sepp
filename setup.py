@@ -219,10 +219,10 @@ setup(name="sepp",
       author_email="smirarab@gmail.com, namphuon@cs.utah.edu",
 
       license="General Public License (GPL)",
-      install_requires=["dendropy >= 4.0.0"],
-      provides=["sepp","apples"],
+      install_requires=["dendropy >= 4.0.0", "apples >= 1.2.3"],
+      provides=["sepp"],
       scripts=["run_sepp.py", 'run_tipp.py', 'run_upp.py', 'run_abundance.py',
-               "split_sequences.py", "run_tipp_tool.py", "run_apples.py"],
+               "split_sequences.py", "run_tipp_tool.py"],
       cmdclass={"config": ConfigSepp, "tipp": ConfigTIPP, "upp": ConfigUPP},
       data_files=[('', ['home.path'])],
 
