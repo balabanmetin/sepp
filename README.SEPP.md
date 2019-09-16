@@ -1,5 +1,5 @@
 ------------------------------------
-Running With APPLES instructions
+How to run SEPP with APPLES:
 ------------------------------------
 
 Please use option `-pl apples` to use APPLES for placement and  `-pl pplacer` for PPLACER.
